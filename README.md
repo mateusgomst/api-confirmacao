@@ -22,10 +22,138 @@ A clínica agenda sessões com pacientes e precisa que os responsáveis confirme
 
 ## 🛠️ Stack Tecnológica
 
-- **Java 11+** com Spring Boot
+- **Java 17** com Spring Boot 3.5.4
 - **Spring Data JPA** para persistência
 - **Banco H2** (em memória)
 - **Gradle** como build tool
+- **Docker** para containerização
+
+---
+
+## ⚠️ IMPORTANTE: Configuração Obrigatória
+
+**Antes de executar a aplicação (seja local ou Docker), você DEVE criar o arquivo `.env` na raiz do projeto:**
+
+### 📄 Criar arquivo `.env`
+```bash
+# Na raiz do projeto, crie o arquivo .env com o conteúdo abaixo:
+cat > .env << 'EOF'
+APP_NAME=api-confirmacao
+SERVER_PORT=8080
+DB_URL=jdbc:h2:mem:testdb
+DB_DRIVER=org.h2.Driver
+DB_USERNAME=sa
+DB_PASSWORD=
+
+H2_CONSOLE_ENABLED=true
+H2_CONSOLE_PATH=/h2-console
+
+JPA_DIALECT=org.hibernate.dialect.H2Dialect
+JPA_DDL_AUTO=create-drop
+JPA_SHOW_SQL=true
+JPA_FORMAT_SQL=true
+
+LOG_LEVEL_SQL=DEBUG
+LOG_LEVEL_HIBERNATE=TRACE
+EOF
+```
+
+---
+
+## 🚀 Como Executar
+
+### 🔧 Opção 1: Ambiente Local (Java + Gradle)
+
+#### Pré-requisitos
+- Java 17 ou superior
+- Git
+
+#### Passos
+```bash
+# 1. Clonar o repositório
+git clone <url-do-repositorio>
+cd api-confirmacao
+
+# 2. 🚨 OBRIGATÓRIO: Criar o arquivo .env
+cat > .env << 'EOF'
+APP_NAME=api-confirmacao
+SERVER_PORT=8080
+DB_URL=jdbc:h2:mem:testdb
+DB_DRIVER=org.h2.Driver
+DB_USERNAME=sa
+DB_PASSWORD=
+
+H2_CONSOLE_ENABLED=true
+H2_CONSOLE_PATH=/h2-console
+
+JPA_DIALECT=org.hibernate.dialect.H2Dialect
+JPA_DDL_AUTO=create-drop
+JPA_SHOW_SQL=true
+JPA_FORMAT_SQL=true
+
+LOG_LEVEL_SQL=DEBUG
+LOG_LEVEL_HIBERNATE=TRACE
+EOF
+
+# 3. Exportar variáveis do .env para o ambiente local
+export $(grep -v '^#' .env | xargs)
+
+# 4. Executar a aplicação
+./gradlew bootRun        # Linux/Mac
+gradlew.bat bootRun      # Windows
+```
+
+### 🐳 Opção 2: Docker (Recomendado)
+
+#### Pré-requisitos
+- Docker instalado
+- Git
+
+#### Passos
+```bash
+# 1. Clonar o repositório
+git clone <url-do-repositorio>
+cd api-confirmacao
+
+# 2. 🚨 OBRIGATÓRIO: Criar o arquivo .env
+cat > .env << 'EOF'
+APP_NAME=api-confirmacao
+SERVER_PORT=8080
+DB_URL=jdbc:h2:mem:testdb
+DB_DRIVER=org.h2.Driver
+DB_USERNAME=sa
+DB_PASSWORD=
+
+H2_CONSOLE_ENABLED=true
+H2_CONSOLE_PATH=/h2-console
+
+JPA_DIALECT=org.hibernate.dialect.H2Dialect
+JPA_DDL_AUTO=create-drop
+JPA_SHOW_SQL=true
+JPA_FORMAT_SQL=true
+
+LOG_LEVEL_SQL=DEBUG
+LOG_LEVEL_HIBERNATE=TRACE
+EOF
+
+# 3. Buildar a imagem Docker
+docker build -t api-confirmacao .
+
+# 4. Executar o container com variáveis de ambiente
+docker run -p 8080:8080 --env-file .env api-confirmacao
+```
+
+---
+
+### 🌐 Acesso à Aplicação
+
+A aplicação estará disponível em: `http://localhost:8080`
+
+### 🗄️ H2 Console (Banco de Dados)
+Acesse o banco de dados em: `http://localhost:8080/h2-console`
+- **JDBC URL:** `jdbc:h2:mem:testdb`
+- **Username:** `sa`
+- **Password:** *(deixar em branco)*
 
 ---
 
@@ -33,7 +161,7 @@ A clínica agenda sessões com pacientes e precisa que os responsáveis confirme
 
 ```
 api-confirmacao/
-├── src/main/java/com/clinic/
+├── src/main/java/com/agendamento/apiconfirmacao/
 │   ├── controller/
 │   │   ├── PacienteController.java
 │   │   ├── AgendamentoController.java
@@ -42,50 +170,22 @@ api-confirmacao/
 │   │   ├── AgendamentoService.java
 │   │   └── ConfirmacaoService.java
 │   ├── repository/
+│   │   ├── PacienteRepository.java
+│   │   └── AgendamentoRepository.java
 │   ├── entity/
 │   │   ├── Paciente.java
 │   │   └── Agendamento.java
-│   ├── dto/ (opcional)
-│   └── ClinicApplication.java
+│   ├── dto/
+│   └── ApiConfirmacaoApplication.java
 ├── src/main/resources/
-│   ├── application.yml
+│   ├── application.properties
 │   └── data.sql
+├── Dockerfile
+├── .env                    # 🚨 ARQUIVO OBRIGATÓRIO
 ├── README.md
 ├── build.gradle
 ├── settings.gradle
 └── gradlew / gradlew.bat
-```
-
----
-
-## 🔧 Configuração
-
-### build.gradle
-```gradle
-plugins {
-    id 'org.springframework.boot' version '2.7.0'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'java'
-}
-
-group = 'com.clinic'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    runtimeOnly 'com.h2database:h2'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-}
-
-tasks.named('test') {
-    useJUnitPlatform()
-}
 ```
 
 ---
@@ -108,39 +208,12 @@ CREATE TABLE agendamentos (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     paciente_id BIGINT NOT NULL,
     data_hora TIMESTAMP NOT NULL,
-    status VARCHAR(50) NOT NULL DEFAULT 'PENDENTE',
+    status ENUM('PENDENTE', 'CONFIRMADO', 'CANCELADO') NOT NULL DEFAULT 'PENDENTE',
     token_confirmacao VARCHAR(255) UNIQUE NOT NULL,
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
 );
 ```
-
----
-
-## 🚀 Como Executar
-
-### Pré-requisitos
-- Java 11 ou superior
-- Git
-
-### Passos
-```bash
-# Clonar o repositório
-git clone <url-do-repositorio>
-cd api-confirmacao
-
-# Executar a aplicação
-./gradlew bootRun        # Linux/Mac
-gradlew.bat bootRun      # Windows
-```
-
-A aplicação estará disponível em: `http://localhost:8080`
-
-### H2 Console
-Acesse o banco de dados em: `http://localhost:8080/h2-console`
-- **JDBC URL:** `jdbc:h2:mem:testdb`
-- **Username:** `sa`
-- **Password:** `password`
 
 ---
 
@@ -292,6 +365,23 @@ curl http://localhost:8080/api/confirmacao/{TOKEN_AQUI}
 
 ---
 
+## 🐳 Dockerfile
+
+```dockerfile
+FROM amazoncorretto:17-alpine AS build
+WORKDIR /app
+COPY . /app/
+RUN ./gradlew build --no-daemon -x test
+
+FROM amazoncorretto:17-alpine
+WORKDIR /app
+COPY --from=build /app/build/libs/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
+```
+
+---
+
 ## 🎯 Considerações Técnicas
 
 - **Tokens:** Gerados com `UUID.randomUUID()`
@@ -299,6 +389,8 @@ curl http://localhost:8080/api/confirmacao/{TOKEN_AQUI}
 - **Validações:** Controle de status HTTP com `ResponseEntity`
 - **Persistência:** JPA com relacionamentos adequados
 - **Arquitetura:** Separação clara de responsabilidades (Controller → Service → Repository)
+- **Containerização:** Multi-stage build para otimização da imagem Docker
+- **Configuração:** Variáveis de ambiente obrigatórias via arquivo `.env`
 
 ---
 
@@ -315,7 +407,8 @@ curl http://localhost:8080/api/confirmacao/{TOKEN_AQUI}
 
 ## 🏆 Critérios Atendidos
 
-- ✅ Projeto executa com `./gradlew bootRun`
+- ✅ Projeto executa com `./gradlew bootRun` (após configurar `.env`)
+- ✅ Projeto executa com Docker (usando `--env-file .env`)
 - ✅ CRUD de pacientes funcional
 - ✅ Criação de agendamentos com token automático
 - ✅ Simulação de envio de confirmação
@@ -323,6 +416,8 @@ curl http://localhost:8080/api/confirmacao/{TOKEN_AQUI}
 - ✅ Atualização correta de status
 - ✅ Estrutura organizada em camadas
 - ✅ Tratamento de erros adequado
+- ✅ Containerização com Docker
+- ✅ Configuração via variáveis de ambiente
 
 ---
 
