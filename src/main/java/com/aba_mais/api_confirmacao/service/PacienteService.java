@@ -1,15 +1,17 @@
 package com.aba_mais.api_confirmacao.service;
 
-import com.aba_mais.api_confirmacao.dto.CreatePacienteRequestDto;
-import com.aba_mais.api_confirmacao.entity.Paciente;
-import com.aba_mais.api_confirmacao.repository.PacienteRepository;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.aba_mais.api_confirmacao.dto.CreatePacienteRequestDto;
+import com.aba_mais.api_confirmacao.entity.Paciente;
+import com.aba_mais.api_confirmacao.interfaces.PacienteServiceInterface;
+import com.aba_mais.api_confirmacao.repository.PacienteRepository;
 
 @Service
-public class PacienteService {
+public class PacienteService implements PacienteServiceInterface {
 
     @Autowired
     private PacienteRepository pacienteRepository;
