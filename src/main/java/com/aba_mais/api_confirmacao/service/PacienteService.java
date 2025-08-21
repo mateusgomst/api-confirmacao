@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.aba_mais.api_confirmacao.dto.CreatePacienteRequestDto;
 import com.aba_mais.api_confirmacao.entity.Paciente;
+import com.aba_mais.api_confirmacao.exceptions.EmailJaExisteException;
 import com.aba_mais.api_confirmacao.interfaces.PacienteServiceInterface;
 import com.aba_mais.api_confirmacao.repository.PacienteRepository;
 
@@ -17,6 +18,11 @@ public class PacienteService implements PacienteServiceInterface {
     private PacienteRepository pacienteRepository;
 
     public Paciente cadastrarPaciente(CreatePacienteRequestDto pacienteDto) {
+        // Verificar se email já existe
+        if (pacienteRepository.existsByEmailResponsavel(pacienteDto.getEmail())) {
+            throw new EmailJaExisteException(pacienteDto.getEmail());
+        }
+        
         Paciente paciente = new Paciente(
                 pacienteDto.getNome(),
                 pacienteDto.getEmail(),
