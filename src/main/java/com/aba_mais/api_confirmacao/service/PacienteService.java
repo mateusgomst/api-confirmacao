@@ -2,6 +2,7 @@ package com.aba_mais.api_confirmacao.service;
 
 import java.util.List;
 
+import com.aba_mais.api_confirmacao.exceptions.EmailJaExisteException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,10 @@ public class PacienteService implements PacienteServiceInterface {
                 pacienteDto.getEmail(),
                 pacienteDto.getTelefone()
         );
+        if(pacienteRepository.existsByEmailResponsavel(paciente.getEmailResponsavel())) {
+            throw new EmailJaExisteException(paciente.getEmailResponsavel());
+        }
+
         return pacienteRepository.save(paciente);
     }
 
