@@ -1,4 +1,4 @@
-package com.aba_mais.api_confirmacao.entity;
+package com.aba_mais.api_confirmacao.entities;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -29,24 +29,16 @@ public class Agendamento {
     @Column(name = "data_criacao", nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
     
-    public Agendamento() {
-        this.tokenConfirmacao = UUID.randomUUID().toString();
-        this.dataCriacao = LocalDateTime.now();
-    }
+    public Agendamento() {}
 
     public Agendamento(Paciente paciente, LocalDateTime dataHora) {
         this();
         this.paciente = paciente;
         this.dataHora = dataHora;
+        this.tokenConfirmacao = UUID.randomUUID().toString();
+        this.dataCriacao = LocalDateTime.now();
     }
 
-    public Agendamento(Paciente paciente, LocalDateTime dataHora, StatusAgendamento status) {
-        this();
-        this.paciente = paciente;
-        this.dataHora = dataHora;
-        this.status = status;
-    }
-    
     public Long getId() {
         return id;
     }
