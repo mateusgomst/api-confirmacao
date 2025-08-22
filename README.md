@@ -1,24 +1,3 @@
-## 🛠️ Solução de Problemas de Build/Execução
-
-Se encontrar erros ao rodar o projeto com Gradle (exemplo: problemas de Java, ambiente travado ou cache antigo), execute os comandos abaixo **nesta ordem**:
-
-```bash
-./gradlew --stop
-```
-Encerra todos os daemons (processos) do Gradle que podem estar travados ou com ambiente antigo, liberando recursos e evitando conflitos.
-
-```bash
-./gradlew clean
-```
-Limpa todo o cache de build, arquivos temporários e resultados de compilações anteriores, garantindo que a próxima execução será “do zero”.
-
-```bash
-./gradlew bootRun
-```
-Executa o projeto normalmente, agora com ambiente limpo e sem conflitos de processos.
-
----
-
 # API de Confirmação de Agendamentos
 
 📋 **Informações do Projeto**  
@@ -36,59 +15,27 @@ API REST para gerenciar confirmação de agendamentos de sessões terapêuticas.
 **Cenário**  
 A clínica agenda sessões com pacientes e precisa que os responsáveis confirmem presença com antecedência. Quando o responsável clica no link de confirmação, o status do agendamento é atualizado para CONFIRMADO.
 
-🛠️ **Stack Tecnológica**
-- Java 17 com Spring Boot 3.5.4
+## 🛠️ Stack Tecnológica
+
+- Java 17 com Spring Boot 3.3.2
 - Spring Data JPA para persistência
+- Spring Validation para validações
 - Banco H2 (em memória)
 - Gradle como build tool
 - Docker para containerização
-
-⚠️ **IMPORTANTE: Configuração Obrigatória**  
-Antes de executar a aplicação (seja local ou Docker), você DEVE criar o arquivo `.env` na raiz do projeto:
-
-## 📄 Criar arquivo .env
-
-```bash
-# Na raiz do projeto, crie o arquivo .env com o conteúdo abaixo:
-cat > .env << 'EOF'
-APP_NAME=api-confirmacao
-SERVER_PORT=8080
-DB_URL=jdbc:h2:mem:testdb
-DB_DRIVER=org.h2.Driver
-DB_USERNAME=sa
-DB_PASSWORD=
-
-H2_CONSOLE_ENABLED=true
-H2_CONSOLE_PATH=/h2-console
-
-JPA_DIALECT=org.hibernate.dialect.H2Dialect
-JPA_DDL_AUTO=create-drop
-JPA_SHOW_SQL=true
-JPA_FORMAT_SQL=true
-
-LOG_LEVEL_SQL=DEBUG
-LOG_LEVEL_HIBERNATE=TRACE
-EOF
-```
+- Spring DotEnv para variáveis de ambiente
 
 ---
 
 ## 🚀 Como Executar
 
-### 🔧 Opção 1: Ambiente Local (Java + Gradle)
+⚠️ **IMPORTANTE: Configuração Obrigatória**  
+Antes de executar a aplicação, você DEVE criar o arquivo `.env` na raiz do projeto:
 
-**Pré-requisitos**  
-Java 17 ou superior  
-Git
-
-**Passos**
+### 📄 Criar arquivo .env
 
 ```bash
-# 1. Clonar o repositório
-git clone <url-do-repositorio>
-cd api-confirmacao
-
-# 2. 🚨 OBRIGATÓRIO: Criar o arquivo .env
+# Na raiz do projeto, crie o arquivo .env:
 cat > .env << 'EOF'
 APP_NAME=api-confirmacao
 SERVER_PORT=8080
@@ -108,53 +55,50 @@ JPA_FORMAT_SQL=true
 LOG_LEVEL_SQL=DEBUG
 LOG_LEVEL_HIBERNATE=TRACE
 EOF
+```
 
-# 3. Exportar variáveis do .env para o ambiente local
-export $(grep -v '^#' .env | xargs)
+### 🔧 Opção 1: Ambiente Local (Java + Gradle)
 
-# 4. Executar a aplicação
+**Pré-requisitos**
+- Java 17 ou superior
+- Git
+
+**Passos**
+
+```bash
+# 1. Clonar o repositório
+git clone https://github.com/mateusgomst/api-confirmacao.git
+cd api-confirmacao
+
+# 2. 🚨 OBRIGATÓRIO: Criar o arquivo .env (comando acima)
+
+# 3. Executar a aplicação
 ./gradlew bootRun        # Linux/Mac
 gradlew.bat bootRun      # Windows
 ```
 
-### 🐳 Opção 2: Docker (Recomendado)
+### 🐳 Opção 2: Docker
 
-**Pré-requisitos**  
-Docker instalado  
-Git
+**Pré-requisitos**
+- Docker instalado
+- Git
 
 **Passos**
 
 ```bash
 # 1. Clonar o repositório
-git clone <url-do-repositorio>
+git clone https://github.com/mateusgomst/api-confirmacao.git
 cd api-confirmacao
 
-# 2. 🚨 OBRIGATÓRIO: Criar o arquivo .env
-cat > .env << 'EOF'
-APP_NAME=api-confirmacao
-SERVER_PORT=8080
-DB_URL=jdbc:h2:mem:testdb
-DB_DRIVER=org.h2.Driver
-DB_USERNAME=sa
-DB_PASSWORD=
+# 2. 🚨 OBRIGATÓRIO: Criar o arquivo .env (comando acima)
 
-H2_CONSOLE_ENABLED=true
-H2_CONSOLE_PATH=/h2-console
+# 3. Build da aplicação
+./gradlew build
 
-JPA_DIALECT=org.hibernate.dialect.H2Dialect
-JPA_DDL_AUTO=create-drop
-JPA_SHOW_SQL=true
-JPA_FORMAT_SQL=true
-
-LOG_LEVEL_SQL=DEBUG
-LOG_LEVEL_HIBERNATE=TRACE
-EOF
-
-# 3. Buildar a imagem Docker
+# 4. Build da imagem Docker
 docker build -t api-confirmacao .
 
-# 4. Executar o container com variáveis de ambiente
+# 5. Executar o container com variáveis de ambiente
 docker run -p 8080:8080 --env-file .env api-confirmacao
 ```
 
@@ -162,14 +106,57 @@ docker run -p 8080:8080 --env-file .env api-confirmacao
 
 ## 🌐 Acesso à Aplicação
 
-A aplicação estará disponível em: [http://localhost:8080](http://localhost:8080)
+A aplicação estará disponível em: **[http://localhost:8080](http://localhost:8080)**
 
 ### 🗄️ H2 Console (Banco de Dados)
-Acesse o banco de dados em: [http://localhost:8080/h2-console](http://localhost:8080/h2-console)
+Acesse o banco de dados em: **[http://localhost:8080/h2-console](http://localhost:8080/h2-console)**
 
-- JDBC URL: `jdbc:h2:mem:testdb`
-- Username: `sa`
-- Password: *(deixar em branco)*
+- **JDBC URL:** `jdbc:h2:mem:testdb`
+- **Username:** `sa`
+- **Password:** *(deixar em branco)*
+
+---
+
+## 🛠️ Solução de Problemas
+
+### ❌ Erro "Port 8080 already in use"
+```bash
+# Encontrar processo na porta 8080
+lsof -i :8080
+
+# Matar processo
+kill -9 <PID>
+
+# Ou usar porta diferente no .env
+SERVER_PORT=8081
+```
+
+### ❌ Problemas de Build/Execução (Gradle)
+Se encontrar erros ao rodar o projeto, execute os comandos **nesta ordem**:
+
+```bash
+# 1. Para todos os processos do Gradle
+./gradlew --stop
+
+# 2. Limpa cache e arquivos temporários
+./gradlew clean
+
+# 3. Executa a aplicação limpa
+./gradlew bootRun
+```
+
+### ❌ Problema de permissão (Linux/Mac)
+```bash
+chmod +x gradlew
+```
+
+### ❌ Arquivo .env não encontrado
+```bash
+# Verificar se .env existe na raiz
+ls -la .env
+
+# Se não existir, criar conforme instruções acima
+```
 
 ---
 
@@ -177,27 +164,29 @@ Acesse o banco de dados em: [http://localhost:8080/h2-console](http://localhost:
 
 ```
 api-confirmacao/
-├── src/main/java/com/agendamento/apiconfirmacao/
-│   ├── controller/
+├── src/main/java/com/aba_mais/api_confirmacao/
+│   ├── controllers/
 │   │   ├── PacienteController.java
 │   │   ├── AgendamentoController.java
 │   │   └── ConfirmacaoController.java
-│   ├── service/
+│   ├── services/
 │   │   ├── AgendamentoService.java
 │   │   └── ConfirmacaoService.java
-│   ├── repository/
+│   ├── repositories/
 │   │   ├── PacienteRepository.java
 │   │   └── AgendamentoRepository.java
-│   ├── entity/
+│   ├── entities/
 │   │   ├── Paciente.java
 │   │   └── Agendamento.java
-│   ├── dto/
+│   ├── dtos/
+│   ├── interfaces/
+│   ├── exceptions/
 │   └── ApiConfirmacaoApplication.java
 ├── src/main/resources/
 │   ├── application.properties
 │   └── data.sql
-├── Dockerfile
 ├── .env                    # 🚨 ARQUIVO OBRIGATÓRIO
+├── Dockerfile
 ├── README.md
 ├── build.gradle
 ├── settings.gradle
@@ -208,7 +197,7 @@ api-confirmacao/
 
 ## 🗄️ Modelo de Dados
 
-**Pacientes**
+### Pacientes
 ```sql
 CREATE TABLE pacientes (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -218,7 +207,7 @@ CREATE TABLE pacientes (
 );
 ```
 
-**Agendamentos**
+### Agendamentos
 ```sql
 CREATE TABLE agendamentos (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -233,207 +222,322 @@ CREATE TABLE agendamentos (
 
 ---
 
-## 📚 Endpoints da API
+## 📚 Documentação da API
 
-**Pacientes**
-- `POST /api/pacientes`      # Criar paciente
-- `GET /api/pacientes`       # Listar pacientes
-
-**Agendamentos**
-- `POST /api/agendamentos`                     # Criar agendamento
-- `GET /api/agendamentos`                      # Listar todos agendamentos
-- `GET /api/agendamentos/{id}`                 # Buscar por ID
-- `GET /api/agendamentos/paciente/{id}`        # Agendamentos de um paciente
-
-**Confirmação**
-- `POST /api/agendamentos/{id}/enviar-confirmacao`  # Simular envio
-- `GET /api/confirmacao/{token}`                    # Confirmar agendamento
+**Base URL:** `http://localhost:8080`
 
 ---
 
-## 🔄 Fluxo de Funcionamento
+## 👥 Endpoints - Pacientes
 
-### 1. Criar Agendamento
-
-```bash
-curl -X POST http://localhost:8080/api/agendamentos \
-  -H "Content-Type: application/json" \
-  -d '{
-    "pacienteId": 1,
-    "dataHora": "2025-08-25T14:30:00"
-  }'
+### 📝 Criar Paciente
+```http
+POST /api/pacientes
+Content-Type: application/json
 ```
 
-Resposta:
+**🔗 URL:** [http://localhost:8080/api/pacientes](http://localhost:8080/api/pacientes)
+
+**Exemplo de Request:**
+```json
+{
+  "nome": "UserTeste",
+  "telefoneResponsavel": "(62) 99999-9999",
+  "emailResponsavel": "userteste@gmail.com"
+}
+```
+
+**Resposta (201 Created):**
+```json
+{
+  "id": 3,
+  "nome": "UserTeste",
+  "emailResponsavel": "userteste@gmail.com",
+  "telefoneResponsavel": "(62) 99999-9999"
+}
+```
+
+### 📋 Listar Pacientes
+```http
+GET /api/pacientes
+```
+
+**🔗 Testar no browser:** [http://localhost:8080/api/pacientes](http://localhost:8080/api/pacientes)
+
+---
+
+## 📅 Endpoints - Agendamentos
+
+### 📝 Criar Agendamento
+```http
+POST /api/agendamentos
+Content-Type: application/json
+```
+
+**🔗 URL:** [http://localhost:8080/api/agendamentos](http://localhost:8080/api/agendamentos)
+
+**Exemplo de Request:**
+```json
+{
+  "pacienteId": 3,
+  "dataHora": "2026-08-23T15:27:50"
+}
+```
+
+**Resposta (201 Created):**
+```json
+{
+  "id": 3,
+  "paciente": {
+    "id": 3,
+    "nome": "UserTeste",
+    "emailResponsavel": "userteste@gmail.com",
+    "telefoneResponsavel": "(62) 99999-9999"
+  },
+  "dataHora": "2026-08-23T15:27:50",
+  "status": "PENDENTE",
+  "tokenConfirmacao": "0e98584d-cac4-45bc-a507-b9c6abc1684c",
+  "dataCriacao": "2025-08-22T18:20:23.639950116"
+}
+```
+
+### 📋 Listar Agendamentos
+```http
+GET /api/agendamentos
+```
+
+**🔗 Testar no browser:** [http://localhost:8080/api/agendamentos](http://localhost:8080/api/agendamentos)
+
+**Exemplo de Response:**
+```json
+[
+  {
+    "id": 1,
+    "pacienteNome": "João Silva",
+    "dataHora": "2025-08-25T14:30:00",
+    "status": "PENDENTE",
+    "tokenConfirmacao": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+  },
+  {
+    "id": 2,
+    "pacienteNome": "Maria Santos",
+    "dataHora": "2022-08-26T09:00:00",
+    "status": "PENDENTE",
+    "tokenConfirmacao": "x9y8z7w6-v5u4-3210-zyxw-vu9876543210"
+  },
+  {
+    "id": 3,
+    "pacienteNome": "UserTeste",
+    "dataHora": "2026-08-23T15:27:50",
+    "status": "PENDENTE",
+    "tokenConfirmacao": "0e98584d-cac4-45bc-a507-b9c6abc1684c"
+  }
+]
+```
+
+### 🔍 Buscar Agendamento por ID
+```http
+GET /api/agendamentos/{id}
+```
+
+**🔗 Exemplo:** [http://localhost:8080/api/agendamentos/1](http://localhost:8080/api/agendamentos/1)
+
+### 👤 Agendamentos por Paciente
+```http
+GET /api/agendamentos/paciente/{pacienteId}
+```
+
+**🔗 Exemplo:** [http://localhost:8080/api/agendamentos/paciente/1](http://localhost:8080/api/agendamentos/paciente/1)
+
+### ❌ Cancelar Agendamento
+```http
+PUT /api/agendamentos/{id}/cancelar
+```
+
+**Resposta (200 OK):**
 ```json
 {
   "id": 1,
-  "pacienteId": 1,
+  "pacienteNome": "João Silva",
   "dataHora": "2025-08-25T14:30:00",
-  "status": "PENDENTE",
-  "tokenConfirmacao": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "dataCriacao": "2025-08-20T10:30:00"
+  "status": "CANCELADO",
+  "tokenConfirmacao": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 }
 ```
 
-### 2. Simular Envio de Confirmação
+---
 
-```bash
-curl -X POST http://localhost:8080/api/agendamentos/1/enviar-confirmacao
+## ✉️ Endpoints - Confirmação
+
+### 📤 Enviar Confirmação
+```http
+POST /api/agendamentos/{id}/enviar-confirmacao
 ```
 
-Resposta:
+**Exemplo URL:** `POST http://localhost:8080/api/agendamentos/3/enviar-confirmacao`
+
+**Resposta (200 OK):**
 ```json
 {
   "message": "Mensagem de confirmação enviada",
-  "canal": "EMAIL", 
-  "destinatario": "mae.joao@email.com",
-  "linkConfirmacao": "http://localhost:8080/api/confirmacao/a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "conteudoMensagem": "Olá! Confirme o agendamento da sessão do João para 25/08 às 14:30. Clique: [LINK]"
+  "canal": "EMAIL",
+  "destinatario": "UserTeste",
+  "linkConfirmacao": "http://localhost:8080/api/confirmacao/0e98584d-cac4-45bc-a507-b9c6abc1684c",
+  "conteudoMensagem": "Olá! Confirme o agendamento da sessão do UserTeste para 23/08 às 15:27. Clique: http://localhost:8080/api/confirmacao/0e98584d-cac4-45bc-a507-b9c6abc1684c"
 }
 ```
 
-### 3. Confirmar Agendamento
-
-```bash
-curl http://localhost:8080/api/confirmacao/a1b2c3d4-e5f6-7890-abcd-ef1234567890
+### ✅ Confirmar Agendamento
+```http
+GET /api/confirmacao/{token}
 ```
 
-Resposta:
+**🔗 Exemplo de confirmação:** [http://localhost:8080/api/confirmacao/0e98584d-cac4-45bc-a507-b9c6abc1684c](http://localhost:8080/api/confirmacao/0e98584d-cac4-45bc-a507-b9c6abc1684c)
+
+**Resposta (200 OK):**
 ```json
 {
   "message": "Agendamento confirmado com sucesso!",
   "agendamento": {
-    "id": 1,
-    "pacienteNome": "João Silva",
-    "dataHora": "2025-08-25T14:30:00",
-    "status": "CONFIRMADO"
+    "id": 3,
+    "pacienteNome": "UserTeste",
+    "dataHora": "2026-08-23T15:27:50",
+    "status": "CONFIRMADO",
+    "tokenConfirmacao": "0e98584d-cac4-45bc-a507-b9c6abc1684c"
   }
 }
 ```
 
 ---
 
-## ⚙️ Regras de Negócio
+## 🧪 Fluxo de Teste Completo
 
-**Status do Agendamento**
-- PENDENTE: Recém criado, aguardando confirmação
-- CONFIRMADO: Responsável confirmou via link
-- CANCELADO: Cancelado manualmente
+### **Teste via cURL**
 
-**Validações**
-- ✅ Token único gerado automaticamente (UUID)
-- ✅ Só confirma agendamentos com status PENDENTE
-- ✅ Token inválido retorna erro 404
-- ✅ Agendamento já confirmado retorna erro 400
+```bash
+# 1. Criar paciente
+curl -X POST http://localhost:8080/api/pacientes \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nome": "João da Silva",
+    "telefoneResponsavel": "(62) 99999-1234",
+    "emailResponsavel": "joao@email.com"
+  }'
 
-**Simulação**
-- 📧 Não envia email/WhatsApp real
-- 📱 Retorna dados simulados da mensagem
+# 2. Criar agendamento
+curl -X POST http://localhost:8080/api/agendamentos \
+  -H "Content-Type: application/json" \
+  -d '{
+    "pacienteId": 1,
+    "dataHora": "2026-12-25T10:30:00"
+  }'
+
+# 3. Enviar confirmação
+curl -X POST http://localhost:8080/api/agendamentos/1/enviar-confirmacao
+
+# 4. Confirmar agendamento (use o token retornado)
+curl http://localhost:8080/api/confirmacao/{token-retornado}
+
+# 5. Cancelar agendamento
+curl -X PUT http://localhost:8080/api/agendamentos/1/cancelar
+```
+
+### **Teste via Browser/Postman**
+
+**1. Criar Paciente** → `POST http://localhost:8080/api/pacientes`
+```json
+{
+  "nome": "UserTeste",
+  "telefoneResponsavel": "(62) 99999-9999",
+  "emailResponsavel": "userteste@gmail.com"
+}
+```
+
+**2. Criar Agendamento** → `POST http://localhost:8080/api/agendamentos`
+```json
+{
+  "pacienteId": 3,
+  "dataHora": "2026-08-23T15:27:50"
+}
+```
+
+**3. Listar Agendamentos** → [http://localhost:8080/api/agendamentos](http://localhost:8080/api/agendamentos)
+
+**4. Enviar Confirmação** → `POST http://localhost:8080/api/agendamentos/3/enviar-confirmacao`
+
+**5. Confirmar via Token** → `GET http://localhost:8080/api/confirmacao/{token}`
+
+**6. Cancelar Agendamento** → `PUT http://localhost:8080/api/agendamentos/1/cancelar`
 
 ---
 
-## 🧪 Dados de Exemplo
+## ⚠️ Regras de Negócio
 
-O sistema inclui dados pré-carregados para teste:
+### 📅 Agendamentos
+- ✅ **Horário de funcionamento:** 08:00 às 18:00
+- ✅ **Não permite agendamentos no passado**
+- ✅ **Não permite duplicação** (mesmo paciente, mesma data/hora)
+- ✅ **Token UUID gerado automaticamente**
 
-**Pacientes**
+### ✉️ Confirmações
+- ✅ **Só envia para agendamentos PENDENTES**
+- ✅ **Não envia para CANCELADOS ou CONFIRMADOS**
+- ✅ **Token válido indefinidamente**
+
+### 🔄 Status dos Agendamentos
+- **`PENDENTE`** → Recém criado, aguardando confirmação
+- **`CONFIRMADO`** → Confirmado via token pelo responsável
+- **`CANCELADO`** → Cancelado manualmente
+
+### 🚫 Validações
+- ✅ **Token inválido** = erro 404
+- ✅ **Agendamento já confirmado** = erro 400
+- ✅ **Agendamento cancelado** = erro 409
+- ✅ **Data no passado** = erro 400
+
+---
+
+## 🎯 Dados de Exemplo
+
+A aplicação carrega automaticamente dados de exemplo:
+
+### 👥 Pacientes Pré-cadastrados
 ```sql
 INSERT INTO pacientes (nome, email_responsavel, telefone_responsavel) VALUES 
 ('João Silva', 'mae.joao@email.com', '(62) 99999-1111'),
 ('Maria Santos', 'pai.maria@email.com', '(62) 99999-2222');
 ```
 
-**Agendamentos**
+### 📅 Agendamentos Pré-cadastrados
 ```sql
 INSERT INTO agendamentos (paciente_id, data_hora, status, token_confirmacao) VALUES 
-(1, '2025-08-25 14:30:00', 'PENDENTE', 'token-exemplo-1'),
-(2, '2025-08-26 09:00:00', 'CONFIRMADO', 'token-exemplo-2');
-```
-
----
-
-## 🧪 Teste Manual Completo
-
-```bash
-# 1. Criar paciente
-curl -X POST http://localhost:8080/api/pacientes \
-  -H "Content-Type: application/json" \
-  -d '{"nome": "João Silva", "emailResponsavel": "mae.joao@email.com", "telefoneResponsavel": "(62) 99999-1111"}'
-
-# 2. Criar agendamento
-curl -X POST http://localhost:8080/api/agendamentos \
-  -H "Content-Type: application/json" \
-  -d '{"pacienteId": 1, "dataHora": "2025-08-25T14:30:00"}'
-
-# 3. Simular envio de confirmação
-curl -X POST http://localhost:8080/api/agendamentos/1/enviar-confirmacao
-
-# 4. Confirmar agendamento (use o token retornado)
-curl http://localhost:8080/api/confirmacao/{TOKEN_AQUI}
-
-# 5. Tentar confirmar novamente (deve dar erro)
-curl http://localhost:8080/api/confirmacao/{TOKEN_AQUI}
-```
-
----
-
-## 🐳 Dockerfile
-
-```Dockerfile
-FROM amazoncorretto:17-alpine AS build
-WORKDIR /app
-COPY . /app/
-RUN ./gradlew build --no-daemon -x test
-
-FROM amazoncorretto:17-alpine
-WORKDIR /app
-COPY --from=build /app/build/libs/*.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+(1, '2025-08-25 14:30:00', 'PENDENTE', 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'),
+(2, '2022-08-26 09:00:00', 'PENDENTE', 'x9y8z7w6-v5u4-3210-zyxw-vu9876543210');
 ```
 
 ---
 
 ## 🎯 Considerações Técnicas
 
-- Tokens: Gerados com UUID.randomUUID()
-- Status: Implementado com @Enumerated
-- Validações: Controle de status HTTP com ResponseEntity
-- Persistência: JPA com relacionamentos adequados
-- Arquitetura: Separação clara de responsabilidades (Controller → Service → Repository)
-- Containerização: Multi-stage build para otimização da imagem Docker
-- Configuração: Variáveis de ambiente obrigatórias via arquivo .env
+### ⚙️ Implementação
+- **Tokens:** Gerados com `UUID.randomUUID()`
+- **Status:** Implementado com `@Enumerated`
+- **Validações:** Spring Validation + controle de status HTTP
+- **Persistência:** JPA com relacionamentos adequados
+- **Arquitetura:** Separação clara de responsabilidades (Controller → Service → Repository)
+- **Configuração:** Variáveis de ambiente via Spring DotEnv
+
+### 🔧 Configuração
+- **Banco H2:** Configurado em memória para desenvolvimento
+- **Dados iniciais:** Carregados via `data.sql` após criação das tabelas
+- **Console H2:** Habilitado para desenvolvimento
+- **Porta:** Configurável via variável `SERVER_PORT`
 
 ---
 
-## 📝 Próximos Passos (Melhorias Futuras)
-
-- Implementar envio real de email/WhatsApp
-- Adicionar testes unitários
-- Implementar autenticação
-- Adicionar logs estruturados
-- Criar interface web para administração
-- Implementar cancelamento de agendamentos
-
----
-
-## 🏆 Critérios Atendidos
-
-- ✅ Projeto executa com ./gradlew bootRun (após configurar .env)
-- ✅ Projeto executa com Docker (usando --env-file .env)
-- ✅ CRUD de pacientes funcional
-- ✅ Criação de agendamentos com token automático
-- ✅ Simulação de envio de confirmação
-- ✅ Confirmação via token funcional
-- ✅ Atualização correta de status
-- ✅ Estrutura organizada em camadas
-- ✅ Tratamento de erros adequado
-- ✅ Containerização com Docker
-- ✅ Configuração via variáveis de ambiente
-
----
+## 📞 Contato
 
 **Desenvolvido por:** Mateus Gomes Teixeira  
+**GitHub:** [@mateusgomst](https://github.com/mateusgomst)  
 **Data:** Agosto/2025  
-**Contato:** mateusgomst
+**Empresa:** ABA+ Inteligência Afetiva LTDA
