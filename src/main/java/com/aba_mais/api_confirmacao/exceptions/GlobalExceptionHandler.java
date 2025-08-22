@@ -12,11 +12,43 @@ public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(EmailJaExisteException.class)
-    public ResponseEntity<String> handleEmailJaExiste(EmailJaExisteException ex) {
-        logger.warn("Email já existe: {}", ex.getMessage());
+    @ExceptionHandler(PacienteJaExisteException.class)
+    public ResponseEntity<String> handlePacienteJaExiste(PacienteJaExisteException ex) {
+        logger.warn("Paciente ja existe: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(ex.getMessage());
+    }
+
+    @ExceptionHandler(PacienteNaoExisteException.class)
+    public ResponseEntity<String> handlePacienteNaoExiste(PacienteNaoExisteException ex) {
+        logger.warn("Paciente nao existe: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ex.getMessage());
+    }
+
+    @ExceptionHandler(NomeNullException.class)
+    public ResponseEntity<String> handleNomeNull(NomeNullException ex) {
+        logger.warn("Nome null: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ex.getMessage());
+    }
+
+    @ExceptionHandler(TelefoneNullException.class)
+    public ResponseEntity<String> handleTelefoneNull(TelefoneNullException ex) {
+        logger.warn("Telefone null: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ex.getMessage());
+    }
+
+    @ExceptionHandler(EmailNullException.class)
+    public ResponseEntity<String> handleEmailNull(EmailNullException ex) {
+        logger.warn("Email null: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(ex.getMessage());
     }
 

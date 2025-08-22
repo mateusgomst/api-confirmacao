@@ -1,4 +1,4 @@
-package com.aba_mais.api_confirmacao.dto;
+package com.aba_mais.api_confirmacao.dtos;
 
 public class CreatePacienteRequestDto {
     private String nome;

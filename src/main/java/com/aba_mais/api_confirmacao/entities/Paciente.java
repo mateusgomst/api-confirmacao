@@ -1,4 +1,4 @@
-package com.aba_mais.api_confirmacao.entity;
+package com.aba_mais.api_confirmacao.entities;
 
 import jakarta.persistence.*;
 
@@ -23,7 +23,7 @@ public class Paciente {
     
     public Paciente(String nome, String emailResponsavel, String telefoneResponsavel) {
         this.nome = nome;
-        this.emailResponsavel = emailResponsavel;
+        this.emailResponsavel = (emailResponsavel == null || emailResponsavel.isEmpty()) ? null : emailResponsavel;
         this.telefoneResponsavel = telefoneResponsavel;
     }
     

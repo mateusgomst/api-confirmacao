@@ -1,4 +1,4 @@
-package com.aba_mais.api_confirmacao.entity;
+package com.aba_mais.api_confirmacao.entities;
 
 public enum StatusAgendamento {
     PENDENTE("PENDENTE"),
