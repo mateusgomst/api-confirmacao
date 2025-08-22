@@ -6,8 +6,8 @@
 - [x] Entidades criadas (Paciente, Agendamento)
 - [x] DTOs implementados
 - [x] POST /api/pacientes funcionando
-- [ ] **Exception Handler Global** ← **PRÓXIMO PASSO**
-- [ ] Validações na camada Service
+- [x] **Exception Handler Global** ← **PRÓXIMO PASSO**
+- [x] Validações na camada Service
 - [ ] CRUD completo de Agendamentos
 - [ ] Sistema de Confirmação
 - [ ] Testes manuais

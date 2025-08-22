@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import com.aba_mais.api_confirmacao.dtos.CreatePacienteRequestDto;
@@ -18,7 +19,7 @@ public class PacienteController {
     private PacienteServiceInterface pacienteService;
 
     @PostMapping
-    public ResponseEntity<Paciente> cadastrarPaciente(@RequestBody CreatePacienteRequestDto paciente) {
+    public ResponseEntity<Paciente> cadastrarPaciente(@Validated @RequestBody CreatePacienteRequestDto paciente) {
         return ResponseEntity.ok(pacienteService.cadastrarPaciente(paciente));
     }
 

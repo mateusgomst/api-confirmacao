@@ -1,8 +1,19 @@
 package com.aba_mais.api_confirmacao.dtos;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 public class CreatePacienteRequestDto {
+
+    @NotBlank(message = "Nome é obrigatório")
     private String nome;
+
+    @NotBlank(message = "Email é obrigatório")
+    @Email(message = "Email deve ter um formato válido")
     private String email;
+
+    @NotBlank(message = "Telefone é obrigatório")
     private String telefone;
 
     public CreatePacienteRequestDto() {
