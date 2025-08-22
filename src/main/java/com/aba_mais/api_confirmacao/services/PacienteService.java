@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.aba_mais.api_confirmacao.dtos.CreatePacienteRequestDto;
+import com.aba_mais.api_confirmacao.dtos.CriarPacienteRequestDto;
 import com.aba_mais.api_confirmacao.entities.Paciente;
 import com.aba_mais.api_confirmacao.exceptions.BusinessException;
 import com.aba_mais.api_confirmacao.interfaces.PacienteServiceInterface;
@@ -18,7 +18,8 @@ public class PacienteService implements PacienteServiceInterface {
     @Autowired
     private PacienteRepository pacienteRepository;
 
-    public Paciente cadastrarPaciente(CreatePacienteRequestDto pacienteDto) {
+    @Override
+    public Paciente cadastrarPaciente(CriarPacienteRequestDto pacienteDto) {
 
         if (pacienteRepository.existsByNome(pacienteDto.getNome())) {
             throw new BusinessException(
@@ -29,25 +30,26 @@ public class PacienteService implements PacienteServiceInterface {
 
         Paciente paciente = new Paciente(
                 pacienteDto.getNome(),
-                pacienteDto.getEmail(),
-                pacienteDto.getTelefone()
+                pacienteDto.getEmailResponsavel(),
+                pacienteDto.getTelefoneResponsavel()
         );
 
         return pacienteRepository.save(paciente);
     }
 
+    @Override
     public List<Paciente> listarPacientes() {
         return pacienteRepository.findAll();
     }
 
+    @Override
     public Paciente buscarPacientePorNome(String nome) {
-        Paciente paciente = pacienteRepository.findByNome(nome);
-        if (paciente == null) {
-            throw new BusinessException(
-                    "Paciente não encontrado com o nome: " + nome,
-                    HttpStatus.NOT_FOUND
-            );
-        }
-        return paciente;
+        return pacienteRepository.findByNome(nome)
+                .orElseThrow(() -> new BusinessException(
+                        "Paciente não encontrado com o nome: " + nome,
+                        HttpStatus.NOT_FOUND
+                ));
     }
+
+
 }
