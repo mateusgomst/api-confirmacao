@@ -8,7 +8,7 @@
 - [x] POST /api/pacientes funcionando
 - [x] **Exception Handler Global** ← **PRÓXIMO PASSO**
 - [x] Validações na camada Service
-- [ ] CRUD completo de Agendamentos
+- [x] CRUD completo de Agendamentos
 - [ ] Sistema de Confirmação
 - [ ] Testes manuais
 
