@@ -53,7 +53,7 @@ public class AgendamentoService implements AgendamentoServiceInterface {
 
         return agendamentoRepository.save(agendamento);
     }
-    
+
     @Override
     public List<AgendamentoResponseDto> listarAgendamentos() {
 
@@ -79,6 +79,10 @@ public class AgendamentoService implements AgendamentoServiceInterface {
     @Override
     public List<AgendamentoResponseDto> listarAgendamentosPorPacienteId(Long id) {
         List<Agendamento> agendamentos = agendamentoRepository.findAllByPacienteId(id);
+
+        if (agendamentos.isEmpty()) {
+            throw new BusinessException("Nenhum agendamento encontrado para o paciente com ID: " + id, HttpStatus.NOT_FOUND);
+        }
 
         List<AgendamentoResponseDto> dtos = new ArrayList<>();
         for (Agendamento agendamento : agendamentos) {
