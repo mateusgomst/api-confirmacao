@@ -2,8 +2,10 @@ package com.aba_mais.api_confirmacao.controllers;
 
 import com.aba_mais.api_confirmacao.dtos.AgendamentoResponseDto;
 import com.aba_mais.api_confirmacao.dtos.CriarAgendamentoRequestDto;
+import com.aba_mais.api_confirmacao.dtos.EnvioConfirmacaoResponseDto;
 import com.aba_mais.api_confirmacao.entities.Agendamento;
 import com.aba_mais.api_confirmacao.interfaces.AgendamentoServiceInterface;
+import com.aba_mais.api_confirmacao.interfaces.ConfirmacaoServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,8 @@ public class AgendamentoController {
 
     @Autowired
     private AgendamentoServiceInterface agendamentoService;
+    @Autowired
+    private ConfirmacaoServiceInterface confirmacaoService;
 
     @PostMapping
     public ResponseEntity<Agendamento> agendarConsulta(@Validated @RequestBody CriarAgendamentoRequestDto agendamentoDto) {
@@ -41,5 +45,10 @@ public class AgendamentoController {
     @GetMapping("/paciente/{id}")
     public ResponseEntity<List<AgendamentoResponseDto>> buscarAgendamentosPorPacienteId(@PathVariable Long id) {
         return ResponseEntity.ok(agendamentoService.listarAgendamentosPorPacienteId(id));
+    }
+
+    @PostMapping("/{id}/enviar-confirmacao")
+    public ResponseEntity<EnvioConfirmacaoResponseDto> enviarConfirmacao(@PathVariable Long id) {
+        return ResponseEntity.ok(confirmacaoService.enviarConfirmacao(id));
     }
 }
