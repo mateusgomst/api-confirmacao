@@ -3,6 +3,7 @@ package com.aba_mais.api_confirmacao.services;
 import com.aba_mais.api_confirmacao.dtos.AgendamentoResponseDto;
 import com.aba_mais.api_confirmacao.entities.Agendamento;
 import com.aba_mais.api_confirmacao.entities.Paciente;
+import com.aba_mais.api_confirmacao.entities.StatusAgendamento;
 import com.aba_mais.api_confirmacao.exceptions.BusinessException;
 import com.aba_mais.api_confirmacao.interfaces.AgendamentoServiceInterface;
 import com.aba_mais.api_confirmacao.repositories.AgendamentoRepository;
@@ -68,9 +69,8 @@ public class AgendamentoService implements AgendamentoServiceInterface {
 
     @Override
     public AgendamentoResponseDto buscarAgendamentoPorId(Long id) {
-
-        Agendamento agendamento = agendamentoRepository.findAgendamentoByPacienteId(id)
-                .orElseThrow(() -> new BusinessException("Agendamento do paciente com ID: " + id + " Não encontrado",
+        Agendamento agendamento = agendamentoRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Agendamento com ID: " + id + " não encontrado",
                         HttpStatus.NOT_FOUND));
 
         return new AgendamentoResponseDto(agendamento);
@@ -87,4 +87,48 @@ public class AgendamentoService implements AgendamentoServiceInterface {
 
         return dtos;
     }
+
+
+    @Override
+    public AgendamentoResponseDto confirmarAgendamentoPorToken(String token) {
+        Agendamento agendamento = agendamentoRepository.findByTokenConfirmacao(token)
+                .orElseThrow(() -> new BusinessException("Token inválido: " + token, HttpStatus.NOT_FOUND));
+
+        if (agendamento.getStatus() == StatusAgendamento.CANCELADO) {
+            throw new BusinessException("Não é possível confirmar agendamento cancelado", HttpStatus.CONFLICT);
+        }
+
+        if (agendamento.getStatus() == StatusAgendamento.CONFIRMADO) {
+            throw new BusinessException("Agendamento já foi confirmado anteriormente", HttpStatus.CONFLICT);
+        }
+
+        if (agendamento.getDataHora().isBefore(LocalDateTime.now())) {
+            throw new BusinessException("Não é possível confirmar um agendamento que já passou. Data do agendamento: " + agendamento.getDataHora(), HttpStatus.BAD_REQUEST);
+        }
+
+        agendamento.setStatus(StatusAgendamento.CONFIRMADO);
+        agendamentoRepository.save(agendamento);
+
+        return new AgendamentoResponseDto(agendamento);
+    }
+
+    @Override
+    public AgendamentoResponseDto cancelarAgendamento(Long id) {
+        Agendamento agendamento = agendamentoRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Agendamento com ID: " + id + " não encontrado", HttpStatus.NOT_FOUND));
+
+        if (agendamento.getStatus() == StatusAgendamento.CANCELADO) {
+            throw new BusinessException("Agendamento já foi cancelado", HttpStatus.CONFLICT);
+        }
+
+        if (agendamento.getDataHora().isBefore(LocalDateTime.now())) {
+            throw new BusinessException("Não é possível cancelar agendamento que já passou. Data do agendamento: " + agendamento.getDataHora(), HttpStatus.BAD_REQUEST);
+        }
+
+        agendamento.setStatus(StatusAgendamento.CANCELADO);
+        agendamentoRepository.save(agendamento);
+
+        return new AgendamentoResponseDto(agendamento);
+    }
+
 }

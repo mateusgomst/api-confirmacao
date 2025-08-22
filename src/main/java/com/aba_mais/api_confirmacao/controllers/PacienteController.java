@@ -3,6 +3,7 @@ package com.aba_mais.api_confirmacao.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,8 @@ public class PacienteController {
 
     @PostMapping
     public ResponseEntity<Paciente> cadastrarPaciente(@Validated @RequestBody CriarPacienteRequestDto paciente) {
-        return ResponseEntity.ok(pacienteService.cadastrarPaciente(paciente));
+        Paciente pacienteCadastrado = pacienteService.cadastrarPaciente(paciente);
+        return ResponseEntity.status(HttpStatus.CREATED).body(pacienteCadastrado);
     }
 
     @GetMapping
