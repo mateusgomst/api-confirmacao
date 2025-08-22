@@ -30,31 +30,16 @@ A clínica agenda sessões com pacientes e precisa que os responsáveis confirme
 ## 🚀 Como Executar
 
 ⚠️ **IMPORTANTE: Configuração Obrigatória**  
-Antes de executar a aplicação, você DEVE criar o arquivo `.env` na raiz do projeto:
+Antes de executar a aplicação, você DEVE configurar as variáveis de ambiente:
 
-### 📄 Criar arquivo .env
+### 📄 Configurar Variáveis de Ambiente
 
 ```bash
-# Na raiz do projeto, crie o arquivo .env:
-cat > .env << 'EOF'
-APP_NAME=api-confirmacao
-SERVER_PORT=8080
-DB_URL=jdbc:h2:mem:testdb
-DB_DRIVER=org.h2.Driver
-DB_USERNAME=sa
-DB_PASSWORD=
+# Copiar o arquivo de exemplo para .env
+cp .env.example .env
 
-H2_CONSOLE_ENABLED=true
-H2_CONSOLE_PATH=/h2-console
-
-JPA_DIALECT=org.hibernate.dialect.H2Dialect
-JPA_DDL_AUTO=create-drop
-JPA_SHOW_SQL=true
-JPA_FORMAT_SQL=true
-
-LOG_LEVEL_SQL=DEBUG
-LOG_LEVEL_HIBERNATE=TRACE
-EOF
+# O arquivo .env já contém todas as configurações necessárias
+# Você pode editá-lo se necessário, mas os valores padrão funcionam perfeitamente
 ```
 
 ### 🔧 Opção 1: Ambiente Local (Java + Gradle)
@@ -70,7 +55,8 @@ EOF
 git clone https://github.com/mateusgomst/api-confirmacao.git
 cd api-confirmacao
 
-# 2. 🚨 OBRIGATÓRIO: Criar o arquivo .env (comando acima)
+# 2. 🚨 OBRIGATÓRIO: Copiar configurações
+cp .env.example .env
 
 # 3. Executar a aplicação
 ./gradlew bootRun        # Linux/Mac
@@ -90,7 +76,8 @@ gradlew.bat bootRun      # Windows
 git clone https://github.com/mateusgomst/api-confirmacao.git
 cd api-confirmacao
 
-# 2. 🚨 OBRIGATÓRIO: Criar o arquivo .env (comando acima)
+# 2. 🚨 OBRIGATÓRIO: Copiar configurações
+cp .env.example .env
 
 # 3. Build da aplicação
 ./gradlew build
@@ -127,7 +114,7 @@ lsof -i :8080
 # Matar processo
 kill -9 <PID>
 
-# Ou usar porta diferente no .env
+# Ou alterar porta no arquivo .env
 SERVER_PORT=8081
 ```
 
@@ -152,10 +139,11 @@ chmod +x gradlew
 
 ### ❌ Arquivo .env não encontrado
 ```bash
-# Verificar se .env existe na raiz
+# Verificar se .env existe
 ls -la .env
 
-# Se não existir, criar conforme instruções acima
+# Se não existir, copiar do exemplo
+cp .env.example .env
 ```
 
 ---
@@ -185,7 +173,8 @@ api-confirmacao/
 ├── src/main/resources/
 │   ├── application.properties
 │   └── data.sql
-├── .env                    # 🚨 ARQUIVO OBRIGATÓRIO
+├── .env.example            # 📋 Arquivo de exemplo
+├── .env                    # 🚨 Copiar do .env.example
 ├── Dockerfile
 ├── README.md
 ├── build.gradle
@@ -532,6 +521,7 @@ INSERT INTO agendamentos (paciente_id, data_hora, status, token_confirmacao) VAL
 - **Dados iniciais:** Carregados via `data.sql` após criação das tabelas
 - **Console H2:** Habilitado para desenvolvimento
 - **Porta:** Configurável via variável `SERVER_PORT`
+- **Variáveis:** Definidas no arquivo `.env.example` (copiar para `.env`)
 
 ---
 
