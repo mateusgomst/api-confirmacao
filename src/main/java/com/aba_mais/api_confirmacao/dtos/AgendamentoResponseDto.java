@@ -22,6 +22,9 @@ public class AgendamentoResponseDto {
         this.tokenConfirmacao = agendamento.getTokenConfirmacao();
     }
 
+    public void setStatus(StatusAgendamento status) {
+        this.status = status;
+    }
     public Long getId() { return id; }
     public String getPacienteNome() { return pacienteNome; }
     public LocalDateTime getDataHora() { return dataHora; }
