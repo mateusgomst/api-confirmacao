@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @Service
 public class ConfirmacaoService implements ConfirmacaoServiceInterface {
@@ -31,11 +32,10 @@ public class ConfirmacaoService implements ConfirmacaoServiceInterface {
             throw new BusinessException("Não é possível enviar confirmação para agendamento cancelado", HttpStatus.CONFLICT);
         }
 
-        if (agendamento.getDataHora().isBefore(LocalDateTime.now())) {
+        LocalDateTime agora = LocalDateTime.now(ZoneOffset.UTC);
+        if (agendamento.getDataHora().isBefore(agora)) {
             throw new BusinessException("Não é possível enviar confirmação para agendamento que já passou", HttpStatus.BAD_REQUEST);
         }
-
-        // Aqui seria o envio real do email..
 
         return new EnvioConfirmacaoResponseDto(agendamento);
     }
@@ -46,4 +46,6 @@ public class ConfirmacaoService implements ConfirmacaoServiceInterface {
 
         return new ConfirmarAgendamentoDto("Agendamento confirmado com sucesso!", agendamentoConfirmado);
     }
+
+
 }

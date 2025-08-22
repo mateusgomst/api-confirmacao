@@ -12,4 +12,5 @@ public interface AgendamentoServiceInterface {
     List<AgendamentoResponseDto> listarAgendamentos();
     List<AgendamentoResponseDto> listarAgendamentosPorPacienteId(Long id);
     AgendamentoResponseDto confirmarAgendamentoPorToken(String token);
+    AgendamentoResponseDto cancelarAgendamento(Long id);
 }

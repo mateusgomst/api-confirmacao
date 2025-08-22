@@ -98,12 +98,12 @@ public class AgendamentoService implements AgendamentoServiceInterface {
             throw new BusinessException("Não é possível confirmar agendamento cancelado", HttpStatus.CONFLICT);
         }
 
-        if (agendamento.getStatus() == StatusAgendamento.CANCELADO) {
+        if (agendamento.getStatus() == StatusAgendamento.CONFIRMADO) {
             throw new BusinessException("Agendamento já foi confirmado anteriormente", HttpStatus.CONFLICT);
         }
 
         if (agendamento.getDataHora().isBefore(LocalDateTime.now())) {
-            throw new BusinessException("Não é possível confirmar um agendamento que já passou. Data do agendamento: "+ agendamento.getDataHora(), HttpStatus.BAD_REQUEST);
+            throw new BusinessException("Não é possível confirmar um agendamento que já passou. Data do agendamento: " + agendamento.getDataHora(), HttpStatus.BAD_REQUEST);
         }
 
         agendamento.setStatus(StatusAgendamento.CONFIRMADO);
@@ -112,5 +112,23 @@ public class AgendamentoService implements AgendamentoServiceInterface {
         return new AgendamentoResponseDto(agendamento);
     }
 
+    @Override
+    public AgendamentoResponseDto cancelarAgendamento(Long id) {
+        Agendamento agendamento = agendamentoRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Agendamento com ID: " + id + " não encontrado", HttpStatus.NOT_FOUND));
+
+        if (agendamento.getStatus() == StatusAgendamento.CANCELADO) {
+            throw new BusinessException("Agendamento já foi cancelado", HttpStatus.CONFLICT);
+        }
+
+        if (agendamento.getDataHora().isBefore(LocalDateTime.now())) {
+            throw new BusinessException("Não é possível cancelar agendamento que já passou. Data do agendamento: " + agendamento.getDataHora(), HttpStatus.BAD_REQUEST);
+        }
+
+        agendamento.setStatus(StatusAgendamento.CANCELADO);
+        agendamentoRepository.save(agendamento);
+
+        return new AgendamentoResponseDto(agendamento);
+    }
 
 }
