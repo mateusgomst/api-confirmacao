@@ -1,7 +1,14 @@
 package com.aba_mais.api_confirmacao.dtos;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.format.DateTimeFormatter;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class EnvioConfirmacaoResponseDto {
     private String message;
     private String canal;
@@ -25,45 +32,5 @@ public class EnvioConfirmacaoResponseDto {
                 horaFormatada,
                 this.linkConfirmacao
         );
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getCanal() {
-        return canal;
-    }
-
-    public void setCanal(String canal) {
-        this.canal = canal;
-    }
-
-    public String getDestinatario() {
-        return destinatario;
-    }
-
-    public void setDestinatario(String destinatario) {
-        this.destinatario = destinatario;
-    }
-
-    public String getLinkConfirmacao() {
-        return linkConfirmacao;
-    }
-
-    public void setLinkConfirmacao(String linkConfirmacao) {
-        this.linkConfirmacao = linkConfirmacao;
-    }
-
-    public String getConteudoMensagem() {
-        return conteudoMensagem;
-    }
-
-    public void setConteudoMensagem(String conteudoMensagem) {
-        this.conteudoMensagem = conteudoMensagem;
     }
 }

@@ -4,9 +4,15 @@ package com.aba_mais.api_confirmacao.dtos;
 
 import com.aba_mais.api_confirmacao.entities.Agendamento;
 import com.aba_mais.api_confirmacao.entities.StatusAgendamento;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class AgendamentoResponseDto {
     private Long id;
     private String pacienteNome;
@@ -22,12 +28,4 @@ public class AgendamentoResponseDto {
         this.tokenConfirmacao = agendamento.getTokenConfirmacao();
     }
 
-    public void setStatus(StatusAgendamento status) {
-        this.status = status;
-    }
-    public Long getId() { return id; }
-    public String getPacienteNome() { return pacienteNome; }
-    public LocalDateTime getDataHora() { return dataHora; }
-    public StatusAgendamento getStatus() { return status; }
-    public String getTokenConfirmacao() { return tokenConfirmacao; }
 }

@@ -1,10 +1,17 @@
 package com.aba_mais.api_confirmacao.entities;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Getter
+@Setter
 @Entity
+@NoArgsConstructor
 @Table(name = "agendamentos")
 public class Agendamento {
     
@@ -28,8 +35,6 @@ public class Agendamento {
     
     @Column(name = "data_criacao", nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
-    
-    public Agendamento() {}
 
     public Agendamento(Paciente paciente, LocalDateTime dataHora) {
         this();
@@ -39,53 +44,4 @@ public class Agendamento {
         this.dataCriacao = LocalDateTime.now();
     }
 
-    public Long getId() {
-        return id;
-    }
-    
-    public void setId(Long id) {
-        this.id = id;
-    }
-    
-    public Paciente getPaciente() {
-        return paciente;
-    }
-    
-    public void setPaciente(Paciente paciente) {
-        this.paciente = paciente;
-    }
-    
-    public LocalDateTime getDataHora() {
-        return dataHora;
-    }
-    
-    public void setDataHora(LocalDateTime dataHora) {
-        this.dataHora = dataHora;
-    }
-    
-    public StatusAgendamento getStatus() {
-        return status;
-    }
-    
-    public void setStatus(StatusAgendamento status) {
-        this.status = status;
-    }
-    
-    public String getTokenConfirmacao() {
-        return tokenConfirmacao;
-    }
-    
-    public void setTokenConfirmacao(String tokenConfirmacao) {
-        this.tokenConfirmacao = tokenConfirmacao;
-    }
-    
-    public LocalDateTime getDataCriacao() {
-        return dataCriacao;
-    }
-    
-    public void setDataCriacao(LocalDateTime dataCriacao) {
-        this.dataCriacao = dataCriacao;
-    }
-    
-    
 }

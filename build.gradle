@@ -19,12 +19,29 @@ repositories {
 }
 
 dependencies {
+    // Starter JPA - ORM/Hibernate para banco de dados
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // Starter Web - Controllers REST, Tomcat embarcado
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Starter Validation - Validações @Valid, @NotNull, etc
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Banco H2 em memória para desenvolvimento/testes
     runtimeOnly 'com.h2database:h2'
+
+    // Carrega variáveis de ambiente de arquivos .env
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+
+    // Lombok - Gera getters, setters, construtores automaticamente
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Starter de testes - JUnit, Mockito, TestContainers
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // Launcher da plataforma JUnit 5
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
