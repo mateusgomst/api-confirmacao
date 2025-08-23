@@ -79,7 +79,7 @@ Controllers → Services (Interfaces) → Repositories → Entities
 
 ## Qualidade de Código
 
-### **Tratamento de Exceções**
+### **Tratamento de Exceções Robusto**
 - **GlobalExceptionHandler** centralizado com `@RestControllerAdvice`
 - **BusinessException** customizada com status HTTP específicos
 - **Validações automáticas** com Bean Validation
@@ -90,6 +90,14 @@ Controllers → Services (Interfaces) → Repositories → Entities
 - **Regras de negócio:** Horário funcionamento, datas futuras, duplicações
 - **Status transitions:** Validação de estados válidos dos agendamentos
 
+### **Boas Práticas**
+- **Naming conventions** consistentes e descritivas
+- **Separation of Concerns** bem definida
+- **Immutable DTOs** para transferência segura
+- **Enum types** para valores controlados
+- **UUID generation** para tokens seguros
+- **Swagger Documentation** para APIs autodocumentadas
+- **Lombok** para código limpo e redução de boilerplate
 
 ---
 
@@ -98,6 +106,8 @@ Controllers → Services (Interfaces) → Repositories → Entities
 - **Java 17** com Spring Boot 3.3.2
 - **Spring Data JPA** para persistência
 - **Spring Validation** para validações automáticas
+- **Swagger/OpenAPI** para documentação interativa da API
+- **Lombok** para redução de boilerplate code
 - **Banco H2** em memória para desenvolvimento
 - **Gradle 8.14.3** como build tool
 - **Docker** para containerização
@@ -133,12 +143,14 @@ docker run -p 8080:8080 --env-file .env api-confirmacao
 ## Acesso à Aplicação
 
 **Aplicação:** http://localhost:8080  
+**Swagger UI:** http://localhost:8080/swagger-ui.html  
 **H2 Console:** http://localhost:8080/h2-console
 
-### Credenciais H2
+### Credenciais e Acessos
 - **JDBC URL:** `jdbc:h2:mem:testdb`
 - **Username:** `sa`
 - **Password:** `password`
+- **Swagger UI:** Documentação interativa disponível em `/swagger-ui.html`
 
 ---
 
@@ -171,7 +183,10 @@ CREATE TABLE agendamentos (
 
 ## API Endpoints
 
-**Base URL:** `http://localhost:8080`
+**Base URL:** `http://localhost:8080`  
+**Documentação Interativa:** `http://localhost:8080/swagger-ui.html`
+
+> 💡 **Dica:** Use o Swagger UI para testar todos os endpoints de forma interativa com interface gráfica!
 
 ### **Pacientes**
 

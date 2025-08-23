@@ -28,6 +28,9 @@ dependencies {
     // Starter Validation - Validações @Valid, @NotNull, etc
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+    // Swagger/OpenAPI - Documentação automática da API
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+
     // Banco H2 em memória para desenvolvimento/testes
     runtimeOnly 'com.h2database:h2'
 
