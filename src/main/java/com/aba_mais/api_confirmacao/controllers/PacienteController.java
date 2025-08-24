@@ -2,6 +2,7 @@ package com.aba_mais.api_confirmacao.controllers;
 
 import java.util.List;
 
+import com.aba_mais.api_confirmacao.dtos.PacienteResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +20,8 @@ public class PacienteController {
     private PacienteServiceInterface pacienteService;
 
     @PostMapping
-    public ResponseEntity<Paciente> cadastrarPaciente(@Validated @RequestBody CriarPacienteRequestDto paciente) {
-        Paciente pacienteCadastrado = pacienteService.cadastrarPaciente(paciente);
+    public ResponseEntity<PacienteResponseDto> cadastrarPaciente(@Validated @RequestBody CriarPacienteRequestDto paciente) {
+        PacienteResponseDto pacienteCadastrado = pacienteService.cadastrarPaciente(paciente);
         return ResponseEntity.status(HttpStatus.CREATED).body(pacienteCadastrado);
     }
 

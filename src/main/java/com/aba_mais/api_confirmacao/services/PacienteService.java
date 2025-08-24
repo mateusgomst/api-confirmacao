@@ -2,6 +2,7 @@ package com.aba_mais.api_confirmacao.services;
 
 import java.util.List;
 
+import com.aba_mais.api_confirmacao.dtos.PacienteResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class PacienteService implements PacienteServiceInterface {
     private PacienteRepository pacienteRepository;
 
     @Override
-    public Paciente cadastrarPaciente(CriarPacienteRequestDto pacienteDto) {
+    public PacienteResponseDto cadastrarPaciente(CriarPacienteRequestDto pacienteDto) {
 
         Paciente paciente = new Paciente(
                 pacienteDto.getNome(),
@@ -29,10 +30,10 @@ public class PacienteService implements PacienteServiceInterface {
                 pacienteDto.getTelefoneResponsavel()
         );
 
-        Paciente salvo = pacienteRepository.save(paciente);
-        log.info("Paciente cadastrado com sucesso - ID: {}, Nome: {}", salvo.getId(), salvo.getNome());
+        PacienteResponseDto pacienteResponseDto = new PacienteResponseDto(pacienteRepository.save(paciente));
+        log.info("Paciente cadastrado com sucesso - ID: {}, Nome: {}", pacienteResponseDto.getId(), pacienteResponseDto.getNome());
 
-        return salvo;
+        return pacienteResponseDto;
     }
 
     @Override
