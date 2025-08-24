@@ -27,20 +27,23 @@ public class ConfirmacaoService implements ConfirmacaoServiceInterface {
         AgendamentoResponseDto agendamento = agendamentoService.buscarAgendamentoPorId(agendamentoId);
 
         if (agendamento.getStatus() == StatusAgendamento.CONFIRMADO) {
-            throw new BusinessException("Agendamento já foi confirmado, não é necessário reenviar", HttpStatus.CONFLICT);
+            log.info("Agendamento já confirmado, não é necessário reenviar - ID: {}", agendamentoId);
+            return new EnvioConfirmacaoResponseDto(agendamento, "Mensagem de confirmação já foi enviada!!!");
         }
 
         if (agendamento.getStatus() == StatusAgendamento.CANCELADO) {
             throw new BusinessException("Não é possível enviar confirmação para agendamento cancelado", HttpStatus.CONFLICT);
-        }
+        }//tmb poderiamos apenas reenviar aq e não lançar uma exceção, pq vai enviar a "mensagem" porem n tem como confirmar a consulta ja estando cancelado
 
         LocalDateTime agora = LocalDateTime.now(ZoneOffset.UTC);
         if (agendamento.getDataHora().isBefore(agora)) {
             throw new BusinessException("Não é possível enviar confirmação para agendamento que já passou", HttpStatus.BAD_REQUEST);
         }
+
         log.info("Confirmação enviada com sucesso - ID: {}", agendamentoId);
         return new EnvioConfirmacaoResponseDto(agendamento);
     }
+
 
     @Override
     public ConfirmarAgendamentoDto confirmarAgendamento(String token) {

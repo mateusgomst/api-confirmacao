@@ -33,4 +33,21 @@ public class EnvioConfirmacaoResponseDto {
                 this.linkConfirmacao
         );
     }
-}
+
+    public EnvioConfirmacaoResponseDto(AgendamentoResponseDto agendamento, String message) {
+        this.message = message;
+        this.canal = "EMAIL";
+        this.destinatario = agendamento.getPacienteNome();
+        this.linkConfirmacao = "http://localhost:8080/api/confirmacao/" + agendamento.getTokenConfirmacao();
+
+        String dataFormatada = agendamento.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM"));
+        String horaFormatada = agendamento.getDataHora().format(DateTimeFormatter.ofPattern("HH:mm"));
+
+        this.conteudoMensagem = String.format(
+                "Olá! Confirme o agendamento da sessão do %s para %s às %s. Clique: %s",
+                agendamento.getPacienteNome(),
+                dataFormatada,
+                horaFormatada,
+                this.linkConfirmacao
+        );
+    }}
