@@ -8,6 +8,7 @@ import com.aba_mais.api_confirmacao.exceptions.BusinessException;
 import com.aba_mais.api_confirmacao.interfaces.AgendamentoServiceInterface;
 import com.aba_mais.api_confirmacao.repositories.AgendamentoRepository;
 import com.aba_mais.api_confirmacao.repositories.PacienteRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -15,8 +16,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+@Slf4j
 @Service
 public class AgendamentoService implements AgendamentoServiceInterface {
 
@@ -50,13 +51,14 @@ public class AgendamentoService implements AgendamentoServiceInterface {
         }
 
         Agendamento agendamento = new Agendamento(paciente, dataHora);
+        Agendamento salvo = agendamentoRepository.save(agendamento);
 
-        return agendamentoRepository.save(agendamento);
+        log.info("Agendamento criado - ID: {}", salvo.getId());
+        return salvo;
     }
 
     @Override
     public List<AgendamentoResponseDto> listarAgendamentos() {
-
         List<Agendamento> agendamentos = agendamentoRepository.findAll();
 
         List<AgendamentoResponseDto> dtos = new ArrayList<>();
@@ -70,8 +72,7 @@ public class AgendamentoService implements AgendamentoServiceInterface {
     @Override
     public AgendamentoResponseDto buscarAgendamentoPorId(Long id) {
         Agendamento agendamento = agendamentoRepository.findById(id)
-                .orElseThrow(() -> new BusinessException("Agendamento com ID: " + id + " não encontrado",
-                        HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new BusinessException("Agendamento com ID: " + id + " não encontrado", HttpStatus.NOT_FOUND));
 
         return new AgendamentoResponseDto(agendamento);
     }
@@ -91,7 +92,6 @@ public class AgendamentoService implements AgendamentoServiceInterface {
 
         return dtos;
     }
-
 
     @Override
     public AgendamentoResponseDto confirmarAgendamentoPorToken(String token) {
@@ -113,6 +113,7 @@ public class AgendamentoService implements AgendamentoServiceInterface {
         agendamento.setStatus(StatusAgendamento.CONFIRMADO);
         agendamentoRepository.save(agendamento);
 
+        log.info("Agendamento confirmado - ID: {}", agendamento.getId());
         return new AgendamentoResponseDto(agendamento);
     }
 
@@ -132,7 +133,7 @@ public class AgendamentoService implements AgendamentoServiceInterface {
         agendamento.setStatus(StatusAgendamento.CANCELADO);
         agendamentoRepository.save(agendamento);
 
+        log.info("Agendamento cancelado - ID: {}", id);
         return new AgendamentoResponseDto(agendamento);
     }
-
 }

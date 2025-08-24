@@ -11,7 +11,9 @@ import com.aba_mais.api_confirmacao.entities.Paciente;
 import com.aba_mais.api_confirmacao.exceptions.BusinessException;
 import com.aba_mais.api_confirmacao.interfaces.PacienteServiceInterface;
 import com.aba_mais.api_confirmacao.repositories.PacienteRepository;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class PacienteService implements PacienteServiceInterface {
 
@@ -21,35 +23,31 @@ public class PacienteService implements PacienteServiceInterface {
     @Override
     public Paciente cadastrarPaciente(CriarPacienteRequestDto pacienteDto) {
 
-        if (pacienteRepository.existsByNome(pacienteDto.getNome())) {
-            throw new BusinessException(
-                    "Já existe um paciente com este nome: " + pacienteDto.getNome(),
-                    HttpStatus.CONFLICT
-            );
-        }
-
         Paciente paciente = new Paciente(
                 pacienteDto.getNome(),
                 pacienteDto.getEmailResponsavel(),
                 pacienteDto.getTelefoneResponsavel()
         );
 
-        return pacienteRepository.save(paciente);
+        Paciente salvo = pacienteRepository.save(paciente);
+        log.info("Paciente cadastrado com sucesso - ID: {}, Nome: {}", salvo.getId(), salvo.getNome());
+
+        return salvo;
     }
 
     @Override
     public List<Paciente> listarPacientes() {
-        return pacienteRepository.findAll();
+        List<Paciente> pacientes = pacienteRepository.findAll();
+        log.info("Retornando {} pacientes", pacientes.size());
+
+        return pacientes;
     }
 
     @Override
     public Paciente buscarPacientePorNome(String nome) {
         return pacienteRepository.findByNome(nome)
-                .orElseThrow(() -> new BusinessException(
-                        "Paciente não encontrado com o nome: " + nome,
-                        HttpStatus.NOT_FOUND
-                ));
+                .orElseThrow(() -> {
+                    return new BusinessException("Paciente não encontrado com o nome: " + nome, HttpStatus.NOT_FOUND);
+                });
     }
-
-
 }
