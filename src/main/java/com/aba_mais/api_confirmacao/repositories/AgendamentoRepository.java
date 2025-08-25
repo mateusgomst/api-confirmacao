@@ -11,7 +11,8 @@ import java.util.Optional;
 
 @Repository
 public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> {
-    boolean existsByPacienteIdAndDataHora(Long pacienteId, LocalDateTime dataHora);
     Optional<Agendamento> findByTokenConfirmacao(String token);
     List<Agendamento> findAllByPacienteId(Long pacienteId);
+    Optional<Agendamento> findByPacienteIdAndDataHora(Long pacienteId, LocalDateTime dataHora);
+
 }

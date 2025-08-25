@@ -41,8 +41,12 @@ public class AgendamentoService implements AgendamentoServiceInterface {
             throw new BusinessException("A data do agendamento não pode ser no passado.", HttpStatus.BAD_REQUEST);
         }
 
-        if (agendamentoRepository.existsByPacienteIdAndDataHora(pacienteId, dataHora)) {
-            throw new BusinessException("Este paciente já possui um agendamento marcado para esta data e hora.", HttpStatus.CONFLICT);
+        Agendamento existente = agendamentoRepository.findByPacienteIdAndDataHora(pacienteId, dataHora)
+                .orElse(null);
+
+        if (existente != null) {
+            log.info("Agendamento já existente retornado - ID: {}", existente.getId());
+            return existente;
         }
 
         int hora = dataHora.getHour();
@@ -56,6 +60,7 @@ public class AgendamentoService implements AgendamentoServiceInterface {
         log.info("Agendamento criado - ID: {}", salvo.getId());
         return salvo;
     }
+
 
     @Override
     public List<AgendamentoResponseDto> listarAgendamentos() {
@@ -98,12 +103,12 @@ public class AgendamentoService implements AgendamentoServiceInterface {
         Agendamento agendamento = agendamentoRepository.findByTokenConfirmacao(token)
                 .orElseThrow(() -> new BusinessException("Token inválido: " + token, HttpStatus.NOT_FOUND));
 
-        if (agendamento.getStatus() == StatusAgendamento.CANCELADO) {
-            throw new BusinessException("Não é possível confirmar agendamento cancelado", HttpStatus.CONFLICT);
+        if (agendamento.getStatus() == StatusAgendamento.CONFIRMADO) {
+            throw new BusinessException("Agendamento já foi confirmado", HttpStatus.BAD_REQUEST);
         }
 
-        if (agendamento.getStatus() == StatusAgendamento.CONFIRMADO) {
-            throw new BusinessException("Agendamento já foi confirmado anteriormente", HttpStatus.CONFLICT);
+        if (agendamento.getStatus() != StatusAgendamento.PENDENTE) {
+            throw new BusinessException("Só é possivel confirmar agendamento com status 'PENDENTE'. Status atual: " + agendamento.getStatus(), HttpStatus.BAD_REQUEST);
         }
 
         if (agendamento.getDataHora().isBefore(LocalDateTime.now())) {
