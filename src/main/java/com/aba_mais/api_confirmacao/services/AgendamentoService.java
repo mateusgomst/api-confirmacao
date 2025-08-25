@@ -29,13 +29,16 @@ public class AgendamentoService implements AgendamentoServiceInterface {
 
     @Override
     public Agendamento criarAgendamento(Long pacienteId, LocalDateTime dataHora) {
-
         if (pacienteId < 0) {
             throw new BusinessException("PacienteId deve ser um número inteiro positivo.", HttpStatus.BAD_REQUEST);
         }
 
         Paciente paciente = pacienteRepository.findById(pacienteId)
                 .orElseThrow(() -> new BusinessException("Paciente não encontrado com ID: " + pacienteId, HttpStatus.NOT_FOUND));
+
+        if (!paciente.getAtivo()) {
+            throw new BusinessException("Não é possível criar agendamento para paciente inativo", HttpStatus.BAD_REQUEST);
+        }
 
         if (dataHora.isBefore(LocalDateTime.now())) {
             throw new BusinessException("A data do agendamento não pode ser no passado.", HttpStatus.BAD_REQUEST);
@@ -61,12 +64,11 @@ public class AgendamentoService implements AgendamentoServiceInterface {
         return salvo;
     }
 
-
     @Override
     public List<AgendamentoResponseDto> listarAgendamentos() {
         List<Agendamento> agendamentos = agendamentoRepository.findAll();
-
         List<AgendamentoResponseDto> dtos = new ArrayList<>();
+
         for (Agendamento agendamento : agendamentos) {
             dtos.add(new AgendamentoResponseDto(agendamento));
         }
@@ -100,6 +102,7 @@ public class AgendamentoService implements AgendamentoServiceInterface {
 
     @Override
     public AgendamentoResponseDto confirmarAgendamentoPorToken(String token) {
+
         Agendamento agendamento = agendamentoRepository.findByTokenConfirmacao(token)
                 .orElseThrow(() -> new BusinessException("Token inválido: " + token, HttpStatus.NOT_FOUND));
 
@@ -126,6 +129,10 @@ public class AgendamentoService implements AgendamentoServiceInterface {
     public AgendamentoResponseDto cancelarAgendamento(Long id) {
         Agendamento agendamento = agendamentoRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("Agendamento com ID: " + id + " não encontrado", HttpStatus.NOT_FOUND));
+
+        if (!agendamento.getPaciente().getAtivo()) {
+            throw new BusinessException("Paciente inativo, todos agendamentos já estão cancelados!", HttpStatus.BAD_REQUEST);
+        }
 
         if (agendamento.getStatus() == StatusAgendamento.CANCELADO) {
             throw new BusinessException("Agendamento já foi cancelado", HttpStatus.CONFLICT);

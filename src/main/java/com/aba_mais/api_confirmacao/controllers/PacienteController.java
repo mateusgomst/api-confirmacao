@@ -5,7 +5,7 @@ import java.util.List;
 import com.aba_mais.api_confirmacao.dtos.AtualizarPacienteRequestDto;
 import com.aba_mais.api_confirmacao.dtos.CriarPacienteRequestDto;
 import com.aba_mais.api_confirmacao.dtos.PacienteResponseDto;
-import com.aba_mais.api_confirmacao.entities.Paciente;
+import com.aba_mais.api_confirmacao.dtos.RespostaOperacaoPacienteDto;
 import com.aba_mais.api_confirmacao.interfaces.PacienteServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,13 +27,14 @@ public class PacienteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Paciente>> listarPacientes() {
-        return ResponseEntity.ok(pacienteService.listarPacientes());
+    public ResponseEntity<List<PacienteResponseDto>> listarPacientes() {
+        List<PacienteResponseDto> pacientesDto = pacienteService.listarPacientes();
+        return ResponseEntity.ok(pacientesDto);
     }
 
     @GetMapping("/{nome}")
-    public ResponseEntity<Paciente> buscarPacientePorNome(@PathVariable String nome) {
-        Paciente paciente = pacienteService.buscarPacientePorNome(nome);
+    public ResponseEntity<PacienteResponseDto> buscarPacientePorNome(@PathVariable String nome) {
+        PacienteResponseDto paciente = pacienteService.buscarPacientePorNome(nome);
         return ResponseEntity.ok(paciente);
     }
 
@@ -44,8 +45,8 @@ public class PacienteController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarPaciente(@PathVariable Long id) {
-        pacienteService.deletarPaciente(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<RespostaOperacaoPacienteDto> deletarPaciente(@PathVariable Long id) {
+        RespostaOperacaoPacienteDto pacienteDesativado = pacienteService.deletarPaciente(id);
+        return ResponseEntity.ok(pacienteDesativado);
     }
 }

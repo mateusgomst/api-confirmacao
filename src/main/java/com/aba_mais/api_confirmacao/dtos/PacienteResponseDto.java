@@ -13,13 +13,11 @@ public class PacienteResponseDto {
     private String nome;
     private String emailResponsavel;
     private String telefoneResponsavel;
-    private LocalDateTime createdAt;
 
     public PacienteResponseDto(Paciente paciente) {
         this.id = paciente.getId();
         this.nome = paciente.getNome();
         this.emailResponsavel = paciente.getEmailResponsavel();
         this.telefoneResponsavel = paciente.getTelefoneResponsavel();
-        this.createdAt = LocalDateTime.now();
     }
 }

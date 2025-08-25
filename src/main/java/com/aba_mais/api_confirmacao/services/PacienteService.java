@@ -5,9 +5,13 @@ import java.util.List;
 import com.aba_mais.api_confirmacao.dtos.PacienteResponseDto;
 import com.aba_mais.api_confirmacao.dtos.CriarPacienteRequestDto;
 import com.aba_mais.api_confirmacao.dtos.AtualizarPacienteRequestDto;
+import com.aba_mais.api_confirmacao.dtos.RespostaOperacaoPacienteDto;
+import com.aba_mais.api_confirmacao.entities.Agendamento;
 import com.aba_mais.api_confirmacao.entities.Paciente;
+import com.aba_mais.api_confirmacao.entities.StatusAgendamento;
 import com.aba_mais.api_confirmacao.exceptions.BusinessException;
 import com.aba_mais.api_confirmacao.interfaces.PacienteServiceInterface;
+import com.aba_mais.api_confirmacao.repositories.AgendamentoRepository;
 import com.aba_mais.api_confirmacao.repositories.PacienteRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +24,9 @@ public class PacienteService implements PacienteServiceInterface {
 
     @Autowired
     private PacienteRepository pacienteRepository;
+
+    @Autowired
+    private AgendamentoRepository agendamentoRepository;
 
     @Override
     public PacienteResponseDto cadastrarPaciente(CriarPacienteRequestDto pacienteDto) {
@@ -37,6 +44,7 @@ public class PacienteService implements PacienteServiceInterface {
         }
 
         Paciente paciente = new Paciente(pacienteDto.getNome(), pacienteDto.getEmailResponsavel(), pacienteDto.getTelefoneResponsavel());
+        paciente.setAtivo(true);
 
         Paciente salvo = pacienteRepository.save(paciente);
         log.info("Paciente cadastrado com sucesso - ID: {}, Nome: {}", salvo.getId(), salvo.getNome());
@@ -45,25 +53,23 @@ public class PacienteService implements PacienteServiceInterface {
     }
 
     @Override
-    public List<Paciente> listarPacientes() {
+    public List<PacienteResponseDto> listarPacientes() {
         List<Paciente> pacientes = pacienteRepository.findAll();
         log.info("Retornando {} pacientes", pacientes.size());
-        return pacientes;
+        return pacientes.stream().map(PacienteResponseDto::new).toList();
     }
 
     @Override
-    public Paciente buscarPacientePorNome(String nome) {
-        return pacienteRepository.findByNome(nome)
+    public PacienteResponseDto buscarPacientePorNome(String nome) {
+        Paciente paciente = pacienteRepository.findByNome(nome)
                 .orElseThrow(() -> new BusinessException("Paciente não encontrado com o nome: " + nome, HttpStatus.NOT_FOUND));
+        return new PacienteResponseDto(paciente);
     }
 
     @Override
     public PacienteResponseDto atualizarPaciente(Long id, AtualizarPacienteRequestDto pacienteDto) {
         Paciente paciente = pacienteRepository.findById(id)
-                .orElseThrow(() -> new BusinessException(
-                        "Paciente com ID: " + id + " não encontrado",
-                        HttpStatus.NOT_FOUND
-                ));
+                .orElseThrow(() -> new BusinessException("Paciente com ID: " + id + " não encontrado", HttpStatus.NOT_FOUND));
 
         paciente.setNome(pacienteDto.getNome());
         paciente.setEmailResponsavel(pacienteDto.getEmailResponsavel());
@@ -76,11 +82,22 @@ public class PacienteService implements PacienteServiceInterface {
     }
 
     @Override
-    public void deletarPaciente(Long id) {
+    public RespostaOperacaoPacienteDto deletarPaciente(Long id) {
         Paciente paciente = pacienteRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("Paciente com ID: " + id + " não encontrado", HttpStatus.NOT_FOUND));
 
-        pacienteRepository.delete(paciente);
-        log.info("Paciente deletado com sucesso - ID: {}, Nome: {}", paciente.getId(), paciente.getNome());
+        paciente.setAtivo(false);
+        pacienteRepository.save(paciente);
+
+        List<Agendamento> agendamentos = agendamentoRepository.findAllByPacienteId(paciente.getId());
+        for (Agendamento ag : agendamentos) {
+            ag.setStatus(StatusAgendamento.CANCELADO);
+        }
+        agendamentoRepository.saveAll(agendamentos);
+
+        log.info("Paciente desativado e agendamentos cancelados - ID: {}, Nome: {}", paciente.getId(), paciente.getNome());
+
+        return new RespostaOperacaoPacienteDto("Paciente desativado e suas consultas foram canceladas com sucesso", new PacienteResponseDto(paciente)
+        );
     }
 }
