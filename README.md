@@ -98,6 +98,7 @@ Controllers → Services (Interfaces) → Repositories → Entities
 - **UUID generation** para tokens seguros
 - **Swagger Documentation** para APIs autodocumentadas
 - **Lombok** para código limpo e redução de boilerplate
+- **Logging detalhado** com SLF4J para rastreabilidade
 
 ---
 
@@ -162,7 +163,8 @@ CREATE TABLE pacientes (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     nome VARCHAR(255) NOT NULL,
     email_responsavel VARCHAR(255) NOT NULL,
-    telefone_responsavel VARCHAR(20) NOT NULL
+    telefone_responsavel VARCHAR(20) NOT NULL,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE
 );
 ```
 
@@ -238,6 +240,60 @@ curl http://localhost:8080/api/pacientes
     "telefoneResponsavel": "(62) 99999-9999"
   }
 ]
+```
+
+#### Buscar Paciente por Nome
+```bash
+curl http://localhost:8080/api/pacientes/UserTeste
+```
+
+**Resposta (200 OK):**
+```json
+{
+  "id": 3,
+  "nome": "UserTeste",
+  "emailResponsavel": "userteste@gmail.com",
+  "telefoneResponsavel": "(62) 99999-9999"
+}
+```
+
+#### Atualizar Paciente
+```bash
+curl -X PUT http://localhost:8080/api/pacientes/3 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nome": "UserTeste Atualizado",
+    "telefoneResponsavel": "(62) 98888-8888",
+    "emailResponsavel": "userteste.novo@gmail.com"
+  }'
+```
+
+**Resposta (200 OK):**
+```json
+{
+  "id": 3,
+  "nome": "UserTeste Atualizado",
+  "emailResponsavel": "userteste.novo@gmail.com",
+  "telefoneResponsavel": "(62) 98888-8888"
+}
+```
+
+#### Desativar Paciente
+```bash
+curl -X DELETE http://localhost:8080/api/pacientes/3
+```
+
+**Resposta (200 OK):**
+```json
+{
+  "mensagem": "Paciente desativado e suas consultas foram canceladas com sucesso",
+  "paciente": {
+    "id": 3,
+    "nome": "UserTeste",
+    "emailResponsavel": "userteste@gmail.com",
+    "telefoneResponsavel": "(62) 99999-9999"
+  }
+}
 ```
 
 ---
@@ -373,6 +429,17 @@ curl -X POST http://localhost:8080/api/agendamentos/3/enviar-confirmacao
 }
 ```
 
+**Para agendamento já confirmado:**
+```json
+{
+  "message": "Mensagem de confirmação já foi enviada!!!",
+  "canal": "EMAIL",
+  "destinatario": "UserTeste",
+  "linkConfirmacao": "http://localhost:8080/api/confirmacao/0e98584d-cac4-45bc-a507-b9c6abc1684c",
+  "conteudoMensagem": "Olá! Confirme o agendamento da sessão do UserTeste para 23/08 às 15:27. Clique: http://localhost:8080/api/confirmacao/0e98584d-cac4-45bc-a507-b9c6abc1684c"
+}
+```
+
 #### Confirmar Agendamento
 ```bash
 curl http://localhost:8080/api/confirmacao/{token}
@@ -432,9 +499,25 @@ curl -X POST http://localhost:8080/api/agendamentos/1/enviar-confirmacao
 curl http://localhost:8080/api/confirmacao/{token-retornado}
 ```
 
-### 6. Cancelar Agendamento
+### 6. Atualizar Paciente
+```bash
+curl -X PUT http://localhost:8080/api/pacientes/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nome": "João da Silva Atualizado",
+    "telefoneResponsavel": "(62) 98888-1234",
+    "emailResponsavel": "joao.novo@email.com"
+  }'
+```
+
+### 7. Cancelar Agendamento
 ```bash
 curl -X PUT http://localhost:8080/api/agendamentos/1/cancelar
+```
+
+### 8. Desativar Paciente
+```bash
+curl -X DELETE http://localhost:8080/api/pacientes/1
 ```
 
 ---
@@ -444,54 +527,74 @@ curl -X PUT http://localhost:8080/api/agendamentos/1/cancelar
 ### **Agendamentos**
 - **Horário de funcionamento:** 08:00 às 18:00
 - **Não permite agendamentos no passado**
-- **Não permite duplicação** (mesmo paciente, mesma data/hora)
+- **Não permite duplicação** (mesmo paciente, mesma data/hora) - retorna o existente
 - **Token UUID gerado automaticamente**
+- **PacienteId deve ser positivo** (não pode ser negativo)
+- **Não permite agendamentos para pacientes inativos**
 
 ### **Confirmações**
 - **Só envia para agendamentos PENDENTES**
-- **Não envia para CANCELADOS ou CONFIRMADOS**
+- **Não envia para CANCELADOS** (retorna erro 409)
+- **Para agendamentos já CONFIRMADOS** retorna mensagem especial mas não erro
 - **Token válido indefinidamente**
+- **Não permite confirmação de agendamentos no passado**
 
 ### **Status dos Agendamentos**
 - **`PENDENTE`** → Recém criado, aguardando confirmação
 - **`CONFIRMADO`** → Confirmado via token pelo responsável
-- **`CANCELADO`** → Cancelado manualmente
+- **`CANCELADO`** → Cancelado manualmente ou por desativação do paciente
+
+### **Pacientes**
+- **Sistema de Soft Delete:** Pacientes são desativados (campo `ativo = false`)
+- **Duplicação Inteligente:** Se tentar criar paciente com dados idênticos, retorna o existente
+- **Desativação em Cascata:** Quando paciente é desativado, todos agendamentos são cancelados
+- **Validação de formato de telefone:** `(XX) XXXXX-XXXX` ou `(XX) XXXX-XXXX`
+- **Email obrigatório e com formato válido**
+
+### **Pacientes Inativos**
+- Quando um paciente é desativado:
+    - Todos os seus agendamentos são **cancelados automaticamente**
+    - Não é possível criar novos agendamentos para esse paciente
+    - Confirmações de agendamentos existentes **não podem ser realizadas**, pois o status já estará `CANCELADO`
+- Isso garante que o sistema nunca permita confirmar presença de pacientes inativos
 
 ### **Validações e Tratamento de Erros**
 
 #### **Criação de Agendamentos**
 - **Paciente inexistente** → 404 NOT_FOUND
+- **Paciente inativo** → 400 BAD_REQUEST
 - **Data no passado** → 400 BAD_REQUEST
 - **Horário fora do funcionamento** (antes 8h ou após 18h) → 400 BAD_REQUEST
-- **Agendamento duplicado** (mesmo paciente/data/hora) → 409 CONFLICT
-- **ID de paciente inválido** (negativo) → 400 BAD_REQUEST
+- **Agendamento duplicado** → Retorna o existente (não é erro)
+- **PacienteId negativo** → 400 BAD_REQUEST
+
+#### **Gestão de Pacientes**
+- **Paciente duplicado** → Retorna o existente (não é erro)
+- **Paciente não encontrado por nome/ID** → 404 NOT_FOUND
+- **Validações de entrada** → 400 BAD_REQUEST (email inválido, telefone formato incorreto)
 
 #### **Envio de Confirmação**
 - **Agendamento não encontrado** → 404 NOT_FOUND
-- **Agendamento já confirmado** → 409 CONFLICT ("não é necessário reenviar")
-- **Agendamento cancelado** → 409 CONFLICT ("não é possível enviar para cancelado")
+- **Agendamento já confirmado** → 200 OK com mensagem especial
+- **Agendamento cancelado** → 409 CONFLICT
 - **Data já passou** → 400 BAD_REQUEST
 
 #### **Confirmação via Token**
 - **Token inválido/inexistente** → 404 NOT_FOUND
-- **Agendamento já confirmado** → 409 CONFLICT ("já foi confirmado anteriormente")
-- **Agendamento cancelado** → 409 CONFLICT ("não é possível confirmar cancelado")
+- **Agendamento já confirmado** → 400 BAD_REQUEST
+- **Agendamento cancelado** → 400 BAD_REQUEST
 - **Data já passou** → 400 BAD_REQUEST
 
 #### **Cancelamento de Agendamentos**
 - **Agendamento não encontrado** → 404 NOT_FOUND
-- **Agendamento já cancelado** → 409 CONFLICT ("já foi cancelado")
+- **Agendamento já cancelado** → 409 CONFLICT
+- **Paciente inativo** → 400 BAD_REQUEST
 - **Data já passou** → 400 BAD_REQUEST
-
-#### **Gestão de Pacientes**
-- **Nome duplicado** → 409 CONFLICT
-- **Paciente não encontrado por nome** → 404 NOT_FOUND
-- **Validações de entrada** → 400 BAD_REQUEST (email inválido, telefone formato incorreto)
 
 #### **Validações de Entrada (Bean Validation)**
 - **@NotBlank** para campos obrigatórios
 - **@Email** para formato de email válido
-- **@Pattern** para formato de telefone (XX) XXXXX-XXXX
+- **@Pattern** para formato de telefone
 - **@NotNull** para campos não nulos
 
 ---
@@ -514,10 +617,14 @@ api-confirmacao/
 │   │   └── AgendamentoRepository.java
 │   ├── entities/
 │   │   ├── Paciente.java
-│   │   └── Agendamento.java
+│   │   ├── Agendamento.java
+│   │   └── StatusAgendamento.java
 │   ├── dtos/
 │   ├── interfaces/
 │   ├── exceptions/
+│   │   ├── BusinessException.java
+│   │   ├── ErrorResponse.java
+│   │   └── GlobalExceptionHandler.java
 │   └── ApiConfirmacaoApplication.java
 ├── src/main/resources/
 │   ├── application.properties
