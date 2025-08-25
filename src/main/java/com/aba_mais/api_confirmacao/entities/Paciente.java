@@ -25,9 +25,17 @@ public class Paciente {
     @Column(name = "telefone_responsavel", nullable = false, length = 20)
     private String telefoneResponsavel;
 
+    @Column(name = "ativo", nullable = false)
+    private boolean ativo = true;
+
     public Paciente(String nome, String emailResponsavel, String telefoneResponsavel) {
         this.nome = nome;
         this.emailResponsavel = (emailResponsavel == null || emailResponsavel.isEmpty()) ? null : emailResponsavel;
         this.telefoneResponsavel = telefoneResponsavel;
+        this.ativo = true;
+    }
+
+    public boolean getAtivo(){
+        return this.ativo;
     }
 }
